@@ -14,29 +14,21 @@ public class ApiClient {
 
     public ApiClient() {
         this.httpClient = HttpClient.newHttpClient();
+        this.apiKey = System.getenv("financialData").trim();
 
-        // Legge la chiave dalla variabile d'ambiente (se richiesta)
-        this.apiKey = System.getenv("financialData");
-        // Alcuni endpoint Free non richiedono API key
-        // Se la chiave è necessaria, decommenta il controllo:
-        if(apiKey == null || apiKey.isBlank()) {
-             throw new RuntimeException("API key non trovata (financialData)");
-         }
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new RuntimeException("API key non trovata. Imposta financialData.");
+        }
     }
 
     public String getStockHistorical(String ticker) throws Exception {
+        // URL con ticker e key
+        String url = BASE_URL + "?identifier=" + ticker + "&format=json&key=" + apiKey;
 
-        // Costruisce URL con ticker e formato JSON
-        String url = BASE_URL + "?identifier=" + ticker + "&format=json";
-
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .GET();
-
-        // Se l'endpoint richiede header API key, aggiungi:
-        requestBuilder.header("Authorization", "Bearer " + apiKey);
-
-        HttpRequest request = requestBuilder.build();
+                .GET()
+                .build();
 
         HttpResponse<String> response = httpClient.send(
                 request,
