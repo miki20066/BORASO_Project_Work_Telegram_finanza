@@ -2,23 +2,23 @@ package org.example;
 
 import api.ApiClient;
 
+
+import BOT.Boraso_bot;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
 public class Main {
 
     public static void main(String[] args) {
 
         try {
-            ApiClient client = new ApiClient();
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(new Boraso_bot());
 
-            // Qui scegli il ticker da testare
-            String ticker = "AAPL";
+            System.out.println("Bot Telegram avviato correttamente.");
 
-            String jsonResponse = client.getStockHistorical(ticker);
-
-            System.out.println("Risposta API per " + ticker + ":");
-            System.out.println(jsonResponse);
-
-        } catch (Exception e) {
-            System.err.println("Errore nell'esecuzione:");
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
