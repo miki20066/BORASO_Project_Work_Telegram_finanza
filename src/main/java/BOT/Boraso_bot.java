@@ -1,22 +1,31 @@
 package BOT;
 
-
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-
 public class Boraso_bot extends TelegramLongPollingBot {
+
+    // Username del bot (NON segreto)
+    private static final String BOT_USERNAME = "Boraso_bot";
 
     @Override
     public String getBotUsername() {
-        return System.getenv("Boraso_bot");
+        return BOT_USERNAME;
     }
 
     @Override
     public String getBotToken() {
-        return System.getenv("token_BOT_Boraso");
+        String token = System.getenv("token_BOT_boraso");
+
+        if (token == null || token.isBlank()) {
+            throw new RuntimeException(
+                    "TELEGRAM_BOT_TOKEN non impostato come variabile di sistema"
+            );
+        }
+
+        return token;
     }
 
     @Override
@@ -34,9 +43,7 @@ public class Boraso_bot extends TelegramLongPollingBot {
     }
 
     private void sendText(Long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId.toString());
-        message.setText(text);
+        SendMessage message = new SendMessage(chatId.toString(), text);
 
         try {
             execute(message);
@@ -44,6 +51,4 @@ public class Boraso_bot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 }
