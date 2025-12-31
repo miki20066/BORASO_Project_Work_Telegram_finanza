@@ -1,30 +1,40 @@
 package BOT;
 
-import controller.CommandController;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import service.StockService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Boraso_bot extends TelegramLongPollingBot {
 
+    // Username del bot (NON segreto)
     private static final String BOT_USERNAME = "Boraso_bot";
 
-    private final CommandController controller = new CommandController();
+    // Token da variabile di sistema
+    @Override
+    public String getBotToken() {
+        String token = System.getenv("token_BOT_boraso");
+        if (token == null || token.isBlank()) {
+            throw new RuntimeException(
+                    "TELEGRAM_BOT_TOKEN non impostato come variabile di sistema"
+            );
+        }
+        return token;
+    }
 
     @Override
     public String getBotUsername() {
         return BOT_USERNAME;
     }
 
-    @Override
-    public String getBotToken() {
-        String token = System.getenv("token_BOT_boraso");
+    private final StockService stockService = new StockService();
 
-        if (token == null || token.isBlank()) {
-            throw new RuntimeException("token_BOT_boraso non impostato");
-        }
-
-        return token;
-    }
+    // Mappa per tracciare richieste stock in attesa di numero di giorni
+    private final Map<Long, String> pendingStockRequests = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -33,6 +43,75 @@ public class Boraso_bot extends TelegramLongPollingBot {
             return;
         }
 
-        controller.handle(update, this);
+        String text = update.getMessage().getText().trim();
+        Long chatId = update.getMessage().getChatId();
+
+        // ---------- LOGICA COMANDI ----------
+
+        //start
+        if (text.equalsIgnoreCase("/start")) {
+            sendText(chatId, "Bot collegato correttamente. Usa /comandi per vedere tutti i comandi disponibili.");
+            return;
+        }
+
+        //comandi
+        if (text.equalsIgnoreCase("/comandi")) {
+            String comandi = """
+                    Comandi disponibili:
+                    /start - avvia il bot
+                    /stock NOME - richiede info sulle azioni
+                    /comandi - mostra tutti i comandi
+                    """;
+            sendText(chatId, comandi);
+            return;
+        }
+
+        // stock
+        if (text.startsWith("/stock")) {
+            String[] parts = text.split(" ");
+            if (parts.length < 2) {
+                sendText(chatId, "Devi inserire il ticker es. /stock MSFT");
+                return;
+            }
+            String ticker = parts[1].toUpperCase();
+            pendingStockRequests.put(chatId, ticker);
+            sendText(chatId, "Quanti giorni vuoi vedere (max 10)?");
+            return;
+        }
+
+        // ---------- RISPOSTA NUMERO GIORNI ----------
+
+        if (pendingStockRequests.containsKey(chatId)) {
+            String ticker = pendingStockRequests.get(chatId);
+            try {
+                int giorni = Integer.parseInt(text);
+                if (giorni < 1 || giorni > 10) {
+                    sendText(chatId, "Inserisci un numero valido tra 1 e 10.");
+                    return;
+                }
+
+                String summary = stockService.getStockSummary(ticker, giorni);
+                sendText(chatId, summary);
+
+            } catch (NumberFormatException e) {
+                sendText(chatId, "Inserisci un numero valido tra 1 e 10.");
+            }
+
+            // Rimuovo dalla mappa dopo aver processato la richiesta
+            pendingStockRequests.remove(chatId);
+        }
+    }
+
+    // Metodo ausiliario per inviare testo
+    private void sendText(Long chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId.toString());
+        message.setText(text);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 }

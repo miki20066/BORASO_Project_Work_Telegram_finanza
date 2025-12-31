@@ -18,33 +18,30 @@ public class StockService {
     private final ApiClient apiClient = new ApiClient();
     private final Gson gson = new Gson();
 
-    public String getStockSummary(String ticker) {
-
-        System.out.println("DEBUG: StockService chiamato con " + ticker);
-
+    public String getStockSummary(String ticker, int giorni) {
         String json = apiClient.getDailyPrices(ticker);
-        System.out.println("DEBUG JSON: " + json);
 
         try {
-            Type listType = new TypeToken<List<stockPrice>>() {}.getType();
-            List<stockPrice> prices = gson.fromJson(json, listType);
+            Type type = new TypeToken<List<stockPrice>>() {}.getType();
+            List<stockPrice> prices = gson.fromJson(json, type);
 
             if (prices == null || prices.isEmpty()) {
                 return "Nessun dato trovato per " + ticker;
             }
 
-            stockPrice last = prices.get(0);
-
-            return " " + last.trading_symbol +
-                    "\nData: " + last.date +
-                    "\nOpen: $" + last.open +
-                    "\nHigh: $" + last.high +
-                    "\nLow: $" + last.low +
-                    "\nClose: $" + last.close +
-                    "\nVolume: " + last.volume;
+            // Prendo gli ultimi 'giorni' record (max disponibile)
+            StringBuilder sb = new StringBuilder(ticker + "\n");
+            for (int i = 0; i < Math.min(giorni, prices.size()); i++) {
+                stockPrice p = prices.get(i);
+                sb.append("Data: ").append(p.date)
+                        .append(" | Close: ").append(p.close)
+                        .append("\n");
+            }
+            return sb.toString();
 
         } catch (Exception e) {
             return "Errore nel parsing dei dati per " + ticker;
         }
     }
+
 }
