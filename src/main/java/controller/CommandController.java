@@ -12,6 +12,10 @@ public class CommandController {
         String text = update.getMessage().getText().trim();
         Long chatId = update.getMessage().getChatId();
 
+
+        System.out.println("DEBUG: sono nel controller");
+        System.out.println("DEBUG testo: " + text);
+
         if (text.equalsIgnoreCase("/start")) {
             send(bot, chatId, "Benvenuto nel bot finanziario.");
             return;
@@ -29,6 +33,7 @@ public class CommandController {
 
     private void handleStock(Boraso_bot bot, Long chatId, String text) {
 
+        System.out.println("DEBUG: handleStock chiamato");
         String[] parts = text.split(" ");
 
         if (parts.length != 2) {
