@@ -2,8 +2,12 @@ package BOT;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import service.StockService;
+import model.StockResult;
 import service.StockService;
 
 import java.util.HashMap;
@@ -90,8 +94,21 @@ public class Boraso_bot extends TelegramLongPollingBot {
                     return;
                 }
 
-                String summary = stockService.getStockSummary(ticker, giorni);
-                sendText(chatId, summary);
+                StockResult result = stockService.getStockResult(ticker, giorni);
+
+                sendText(chatId, result.message);
+
+                if (result.chart != null) {
+                    SendPhoto photo = new SendPhoto();
+                    photo.setChatId(chatId.toString());
+                    photo.setPhoto(new InputFile(result.chart));
+                    try {
+                        execute(photo);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+
 
             } catch (NumberFormatException e) {
                 sendText(chatId, "Inserisci un numero valido tra 1 e 10.");
