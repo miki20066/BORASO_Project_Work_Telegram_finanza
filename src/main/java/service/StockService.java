@@ -3,10 +3,18 @@ package service;
 import api.ApiClient;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import db.DatabaseManager;
 import model.stockPrice;
 import model.StockResult;
 
 import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.List;
+
+
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 public class StockService {
@@ -35,7 +43,7 @@ public class StockService {
             if (giorni == 1) {
                 stockPrice p = subset.get(0);
                 String msg = """
-                        📊 %s
+                        %s
                         Data: %s
                         Open: %.2f
                         High: %.2f
@@ -57,5 +65,72 @@ public class StockService {
         } catch (Exception e) {
             return new StockResult("Errore nel parsing dei dati per " + ticker, null);
         }
+    }
+
+    // Statistiche generali
+    public String getGeneralStats() {
+        StringBuilder sb = new StringBuilder();
+
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs1 = stmt.executeQuery("SELECT COUNT(*) AS total FROM stock_requests");
+            if (rs1.next()) {
+                sb.append("Totale richieste: ").append(rs1.getInt("total")).append("\n");
+            }
+
+            ResultSet rs2 = stmt.executeQuery(
+                    "SELECT ticker, COUNT(*) AS count FROM stock_requests " +
+                            "GROUP BY ticker ORDER BY count DESC LIMIT 3"
+            );
+            sb.append("Ticker più richiesti:\n");
+            while (rs2.next()) {
+                sb.append(rs2.getString("ticker"))
+                        .append(" - ")
+                        .append(rs2.getInt("count"))
+                        .append(" richieste\n");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Errore nel recupero delle statistiche generali." + e.getMessage();
+        }
+
+        return sb.toString();
+    }
+
+    // Statistiche personali
+    public String getUserStats(Long chatId) {
+        StringBuilder sb = new StringBuilder();
+
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs1 = stmt.executeQuery(
+                    "SELECT COUNT(*) AS total FROM stock_requests WHERE chat_id = " + chatId
+            );
+            if (rs1.next()) {
+                sb.append("Totale richieste: ").append(rs1.getInt("total")).append("\n");
+            }
+
+            ResultSet rs2 = stmt.executeQuery(
+                    "SELECT ticker, COUNT(*) AS count FROM stock_requests " +
+                            "WHERE chat_id = " + chatId + " " +
+                            "GROUP BY ticker ORDER BY count DESC LIMIT 3"
+            );
+            sb.append("I tuoi ticker più richiesti:\n");
+            while (rs2.next()) {
+                sb.append(rs2.getString("ticker"))
+                        .append(" - ")
+                        .append(rs2.getInt("count"))
+                        .append(" richieste\n");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Errore nel recupero delle statistiche personali.";
+        }
+
+        return sb.toString();
     }
 }
