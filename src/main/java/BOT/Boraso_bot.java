@@ -1,5 +1,6 @@
 package BOT;
 
+import config.ConfigLoader;
 import dao.UserDao;
 import dao.StockRequestDao;
 import service.StockService;
@@ -40,12 +41,14 @@ public class Boraso_bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        String token = System.getenv("token_BOT_boraso");
+        String token = ConfigLoader.get("BOT_TOKEN");
+
         if (token == null || token.isBlank()) {
-            throw new RuntimeException("TELEGRAM_BOT_TOKEN non impostato come variabile di sistema");
+            throw new RuntimeException("BOT_TOKEN non configurato");
         }
         return token;
     }
+
 
     @Override
     public void onUpdateReceived(Update update) {

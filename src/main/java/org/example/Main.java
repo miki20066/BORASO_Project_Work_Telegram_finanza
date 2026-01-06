@@ -10,7 +10,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Inizializza database e tabelle
+                System.out.println(config.ConfigLoader.get("API_KEY_FINANCIALDATA"));
+
+  // Inizializza database e tabelle
         DatabaseManager.initializeDatabase();
 
         try {

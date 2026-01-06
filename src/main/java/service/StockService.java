@@ -56,9 +56,9 @@ public class StockService {
                 return new StockResult(msg, null);
             }
 
-            // 👉 più giorni → GRAFICO
+            // più giorni → GRAFICO
             return new StockResult(
-                    "📈 Andamento ultimi " + giorni + " giorni per " + ticker,
+                    "Andamento ultimi " + giorni + " giorni per " + ticker,
                     chartService.generatePriceChart(ticker, subset)
             );
 

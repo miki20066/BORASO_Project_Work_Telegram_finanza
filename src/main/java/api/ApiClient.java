@@ -1,5 +1,7 @@
 package api;
 
+import config.ConfigLoader;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -11,8 +13,8 @@ public class ApiClient {
     private static final String BASE_URL =
             "https://financialdata.net/api/v1/stock-prices";
 
-    private static final String API_KEY =
-            System.getenv("FINANCIAL_API_KEY");
+    // Legge la API key dal ConfigLoader invece che dalle variabili di sistema
+    private static final String API_KEY = ConfigLoader.get("API_KEY_FINANCIALDATA");
 
     public String getDailyPrices(String symbol) {
 
@@ -48,6 +50,7 @@ public class ApiClient {
 
             System.out.println("DEBUG API: risposta ricevuta");
             System.out.println("DEBUG STATUS: " + response.statusCode());
+            System.out.println("DEBUG JSON: " + response.body());
 
             return response.body();
 
