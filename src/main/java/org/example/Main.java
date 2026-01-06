@@ -1,9 +1,7 @@
 package org.example;
 
-import api.ApiClient;
-
-
 import BOT.Boraso_bot;
+import db.DatabaseManager;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -11,6 +9,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class Main {
 
     public static void main(String[] args) {
+
+        // Inizializza database e tabelle
+        DatabaseManager.initializeDatabase();
 
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -21,7 +22,5 @@ public class Main {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-
-
     }
 }

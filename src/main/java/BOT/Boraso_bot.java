@@ -21,19 +21,17 @@ public class Boraso_bot extends TelegramLongPollingBot {
     private static final String BOT_USERNAME = "Boraso_bot";
 
     // DAO e servizi
-    private final UserDao userDao;
-    private final StockRequestDao stockRequestDao;
-    private final StockService stockService;
+    private final StockService stockService = new StockService();
+    private final UserDao userDao = new UserDao();
+    private final StockRequestDao stockRequestDao = new StockRequestDao();
+
+
 
     // Mappa per richieste stock in attesa
     private final Map<Long, String> pendingStockRequests = new HashMap<>();
 
     // Costruttore
-    public Boraso_bot() {
-        this.userDao = new UserDao();
-        this.stockRequestDao = new StockRequestDao();
-        this.stockService = new StockService();
-    }
+
 
     @Override
     public String getBotUsername() {
