@@ -91,7 +91,7 @@ public class Boraso_bot extends TelegramLongPollingBot {
             if (text.equalsIgnoreCase("/comandi")) {
                 sendText(chatId,
                         "/start - attiva il bot\n" +
-                                "/stock <TICKER> <GIORNI> - richiede dati storici del titolo (max 10 giorni)\n" +
+                                "/stock <TICKER> <GIORNI> - richiede dati storici del titolo (max 50 giorni)\n" +
                                 "/stats - statistiche generali\n" +
                                 "/mystats - statistiche personali"
                 );
@@ -106,7 +106,7 @@ public class Boraso_bot extends TelegramLongPollingBot {
                     int giorni = 1; // default 1 giorno
                     if (parts.length >= 3) {
                         try {
-                            giorni = Math.min(Integer.parseInt(parts[2]), 10);
+                            giorni = Math.min(Integer.parseInt(parts[2]), 50);
                         } catch (NumberFormatException e) {
                             sendText(chatId, "Numero di giorni non valido. Uso 1 giorno.");
                         }
