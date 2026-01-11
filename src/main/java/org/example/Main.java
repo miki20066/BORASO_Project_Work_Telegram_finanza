@@ -10,13 +10,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-                System.out.println(config.ConfigLoader.get("API_KEY_FINANCIALDATA"));
-
-  // Inizializza database e tabelle
         DatabaseManager.initializeDatabase();
 
         try {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            TelegramBotsApi botsApi =
+                    new TelegramBotsApi(DefaultBotSession.class);
+
             botsApi.registerBot(new Boraso_bot());
 
             System.out.println("Bot Telegram avviato correttamente.");

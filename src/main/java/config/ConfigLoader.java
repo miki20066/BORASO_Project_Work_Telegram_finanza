@@ -8,9 +8,10 @@ public class ConfigLoader {
     private static final Properties properties = new Properties();
 
     static {
-        try (InputStream input = ConfigLoader.class
-                .getClassLoader()
-                .getResourceAsStream("config/config.properties")) { // ← deve esistere
+        try (InputStream input =
+                     ConfigLoader.class
+                             .getClassLoader()
+                             .getResourceAsStream("config/config.properties")) {
 
             if (input == null) {
                 throw new RuntimeException("config.properties non trovato");
