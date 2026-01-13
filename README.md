@@ -34,7 +34,7 @@ degli utenti in un database SQLite per analisi statistiche.
 - users → stock_requests (1:N)
 
 ## Esempi di utilizzo
-![esempio](img/Immagine 2026-01-06 225813.png)
+![esempio](img/Screenshot 2026-01-13 alle 18.27.02.png)
 
 ## Statistiche implementate
 - Numero totale richieste
